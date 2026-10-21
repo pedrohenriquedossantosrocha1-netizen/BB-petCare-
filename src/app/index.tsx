@@ -153,12 +153,62 @@ export default function CadastrarPetScreen({ navigation }: { navigation?: any })
     }
   };
 
+const salvar = async () => {
+  const idadeNumero = Number(idade);
 
-  const salvar = () => {
-    const pet = { nome, tipo, raca, idade, porte, microchipado };
-    console.log('Pet cadastrado:', pet);
-    // navigation?.navigate('ProximaTela', { pet });
+  if (
+    !nome.trim() ||
+    !tipo ||
+    !porte ||
+    !idade.trim() ||
+    !Number.isInteger(idadeNumero) ||
+    idadeNumero < 0
+  ) {
+    Alert.alert(
+      'Atenção',
+      'Preencha nome, tipo, idade válida e porte do pet.'
+    );
+    return;
+  }
+
+  const pet = {
+    nome: nome.trim(),
+    especie: tipo,
+    raca: raca.trim(),
+    idade: idadeNumero,
+    porte,
+    possuiMicrochip: microchipado,
   };
+
+  try {
+    const resposta = await fetch('http://localhost:8080/api/pets', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(pet),
+    });
+
+    if (!resposta.ok) {
+      throw new Error('Erro ao cadastrar o pet');
+    }
+
+    const petSalvo = await resposta.json();
+
+    if (typeof window !== 'undefined') {
+  window.alert('Pet cadastrado com sucesso!');
+} else {
+  Alert.alert('Sucesso!', 'Pet cadastrado com sucesso!');
+}
+    console.log('Pet salvo no MySQL:', petSalvo);
+  } catch (erro) {
+    console.error('Erro ao salvar pet:', erro);
+    Alert.alert(
+      'Erro',
+      'Não foi possível cadastrar o pet. Verifique a conexão com o servidor.'
+    );
+  }
+};
 
   return (
     <SafeAreaView style={styles.safe}>
