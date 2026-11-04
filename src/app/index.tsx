@@ -50,7 +50,7 @@ const emergencyOptions = [
     colors: {
       bg: '#f6efc8',
       border: '#e7bd45',
-      text: '#664b09',
+      text: '#6d5004',
     },
   },
   {
@@ -253,7 +253,7 @@ export default function EmergenciaScreen() {
                   value={menuSearch}
                   onChangeText={setMenuSearch}
                   placeholder="Buscar"
-                  placeholderTextColor="#65758b"
+                  placeholderTextColor="#70839f"
                   style={styles.searchInput}
                   accessibilityLabel="Buscar no menu"
                 />
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
   searchBox: {
     height: 38,
     borderRadius: 18,
-    backgroundColor: '#fff',
+    backgroundColor: '#f5f3f3',
     marginTop: 40,
     marginBottom: 14,
     paddingLeft: 12,
