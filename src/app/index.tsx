@@ -5,22 +5,10 @@ import {
   SafeAreaView,
   StyleSheet,
   Text,
-  TextInput,
-  TouchableOpacity,
   View,
 } from 'react-native';
 
 type EmergencyType = 'pouco' | 'urgente' | 'muito' | 'emergencia';
-
-const menuItems = [
-  'Configurações',
-  'Segurança',
-  'Atendimentos',
-  'Clínica Vip',
-  'Redes sociais',
-  'Cadastrar Cartão',
-  'Sair da Conta',
-];
 
 const emergencyOptions = [
   {
@@ -69,34 +57,14 @@ export default function EmergenciaScreen() {
   const [selected, setSelected] = useState<EmergencyType>('urgente');
   const [activeEmergency, setActiveEmergency] = useState<EmergencyType | null>(null);
   const [cancelConfirmation, setCancelConfirmation] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [menuSearch, setMenuSearch] = useState('');
   const activeOption = emergencyOptions.find(
     (option) => option.key === activeEmergency,
-  );
-
-  const filteredMenuItems = menuItems.filter((item) =>
-    item.toLocaleLowerCase('pt-BR').includes(menuSearch.toLocaleLowerCase('pt-BR')),
   );
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.frame}>
-        <View style={styles.topBar}>
-          <TouchableOpacity
-            style={styles.menuButton}
-            activeOpacity={0.8}
-            onPress={() => setMenuOpen((open) => !open)}
-            accessibilityRole="button"
-            accessibilityLabel={menuOpen ? 'Fechar menu' : 'Abrir menu'}
-          >
-            <View style={styles.menuIcon} />
-            <View style={styles.menuIcon} />
-            <View style={styles.menuIcon} />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.yellowBar} />
-
+        <View style={styles.topBar} />
         <View style={styles.content}>
           <View style={styles.alertWrap}>
             <View style={styles.alertCircle}>
@@ -117,7 +85,11 @@ export default function EmergenciaScreen() {
               return (
                 <Pressable
                   key={option.key}
-                  onPress={() => setSelected(option.key)}
+                  onPress={() => {
+                    setSelected(option.key);
+                    setCancelConfirmation(false);
+                    setActiveEmergency(option.key);
+                  }}
                   style={[
                     styles.optionCard,
                     {
@@ -127,6 +99,9 @@ export default function EmergenciaScreen() {
                     },
                   ]}
                   android_ripple={{ color: 'rgba(0,0,0,0.06)' }}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Abrir detalhes: ${option.title.replace('\n', ' ')}`}
+                  accessibilityState={{ selected: isActive }}
                 >
                   <Text style={[styles.optionTitle, { color: option.colors.text }]}>
                     {option.title}
@@ -138,18 +113,11 @@ export default function EmergenciaScreen() {
               );
             })}
           </View>
-
           <Pressable
-            style={styles.primaryButton}
-            onPress={() => {
-              setCancelConfirmation(false);
-              setActiveEmergency(selected);
-            }}
+            style={styles.continueButton}
             accessibilityRole="button"
           >
-            <Text style={styles.primaryButtonText}>
-              VER DETALHES DA EMERGÊNCIA
-            </Text>
+            <Text style={styles.continueButtonText}>SALVAR E CONTINUAR</Text>
           </Pressable>
         </View>
 
@@ -188,7 +156,10 @@ export default function EmergenciaScreen() {
                     <View style={styles.dialogActions}>
                       <Pressable
                         style={styles.keepButton}
-                        onPress={() => setCancelConfirmation(false)}
+                        onPress={() => {
+                          setCancelConfirmation(false);
+                          setActiveEmergency(null);
+                        }}
                         accessibilityRole="button"
                       >
                         <Text style={styles.keepButtonText}>MANTER PEDIDO</Text>
@@ -232,60 +203,6 @@ export default function EmergenciaScreen() {
             )}
           </View>
         </Modal>
-
-        {menuOpen && (
-          <View style={styles.drawerOverlay}>
-            <View style={styles.drawer}>
-              <TouchableOpacity
-                style={styles.menuButton}
-                activeOpacity={0.8}
-                onPress={() => setMenuOpen(false)}
-                accessibilityRole="button"
-                accessibilityLabel="Fechar menu"
-              >
-                <View style={styles.menuIcon} />
-                <View style={styles.menuIcon} />
-                <View style={styles.menuIcon} />
-              </TouchableOpacity>
-
-              <View style={styles.searchBox}>
-                <TextInput
-                  value={menuSearch}
-                  onChangeText={setMenuSearch}
-                  placeholder="Buscar"
-                  placeholderTextColor="#70839f"
-                  style={styles.searchInput}
-                  accessibilityLabel="Buscar no menu"
-                />
-                <Text style={styles.searchIcon}>⌕</Text>
-              </View>
-
-              <View style={styles.drawerItems}>
-                {filteredMenuItems.map((item) => (
-                  <Pressable
-                    key={item}
-                    style={styles.drawerItem}
-                    accessibilityRole="button"
-                    accessibilityLabel={item}
-                  >
-                    <View style={styles.drawerItemIcon}>
-                      <Text style={styles.drawerItemIconText}>▣</Text>
-                    </View>
-                    <Text numberOfLines={1} style={styles.drawerItemText}>
-                      {item}
-                    </Text>
-                  </Pressable>
-                ))}
-              </View>
-            </View>
-            <Pressable
-              style={styles.drawerBackdrop}
-              onPress={() => setMenuOpen(false)}
-              accessibilityRole="button"
-              accessibilityLabel="Fechar menu"
-            />
-          </View>
-        )}
       </View>
     </SafeAreaView>
   );
@@ -306,102 +223,6 @@ const styles = StyleSheet.create({
   topBar: {
     height: 82,
     backgroundColor: '#0b2d8a',
-    justifyContent: 'center',
-    paddingLeft: 20,
-  },
-  yellowBar: {
-    height: 26,
-    backgroundColor: '#ffd600',
-  },
-  menuButton: {
-    width: 28,
-    height: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#2862aa',
-    borderRadius: 4,
-  },
-  menuIcon: {
-    width: 18,
-    height: 3,
-    backgroundColor: '#f3f6fb',
-    borderRadius: 2,
-    marginVertical: 1,
-  },
-  drawerOverlay: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    flexDirection: 'row',
-    zIndex: 10,
-    elevation: 10,
-  },
-  drawer: {
-    width: '60%',
-    backgroundColor: '#073982',
-    paddingHorizontal: 10,
-    paddingTop: 20,
-    zIndex: 1,
-  },
-  drawerBackdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.08)',
-  },
-  searchBox: {
-    height: 38,
-    borderRadius: 18,
-    backgroundColor: '#f5f3f3',
-    marginTop: 40,
-    marginBottom: 14,
-    paddingLeft: 12,
-    paddingRight: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  searchInput: {
-    flex: 1,
-    color: '#1c1f2a',
-    fontSize: 13,
-    paddingVertical: 0,
-  },
-  searchIcon: {
-    color: '#174a91',
-    fontSize: 22,
-    fontWeight: '700',
-    lineHeight: 24,
-  },
-  drawerItems: {
-    gap: 10,
-  },
-  drawerItem: {
-    minHeight: 38,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#eef1f5',
-    borderRadius: 4,
-    paddingHorizontal: 6,
-    gap: 7,
-  },
-  drawerItemIcon: {
-    width: 17,
-    height: 24,
-    borderRadius: 3,
-    backgroundColor: '#ffdf32',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  drawerItemIconText: {
-    color: '#29477a',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  drawerItemText: {
-    flex: 1,
-    color: '#101827',
-    fontSize: 10,
-    fontWeight: '700',
   },
   content: {
     flex: 1,
@@ -496,27 +317,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '500',
   },
-  primaryButton: {
-    width: '100%',
-    height: 58,
-    borderRadius: 12,
-    backgroundColor: '#1c66d8',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20,
-    shadowColor: '#0b2d8a',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.18,
-    shadowRadius: 6,
-    elevation: 4,
-  },
-  primaryButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '800',
-    letterSpacing: 0.3,
-    textAlign: 'center',
-  },
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',
@@ -583,6 +383,20 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '800',
   },
+  continueButton: {
+    width: '100%',
+    minHeight: 48,
+    marginTop: 10,
+    borderRadius: 10,
+    backgroundColor: '#1c66d8',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  continueButtonText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '800',
+  },
   dialogActions: {
     width: '100%',
     gap: 10,
@@ -608,7 +422,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   confirmCancelButtonText: {
-    color: '#9b2222',
+    color: '#a41d1d',
     fontSize: 14,
     fontWeight: '800',
   },
